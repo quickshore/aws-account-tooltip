@@ -191,20 +191,114 @@ function save() {
   });
 }
 
-function load() {
-  chrome.storage.sync.get(["accounts"], (res) => {
-    const accounts = res.accounts || [];
-    rowsEl.innerHTML = "";
-    if (accounts.length === 0) {
-      addRow();
-    } else {
-      accounts.forEach(addRow);
-    }
-    updateEmpty();
-  });
+function renderAccounts(accounts) {
+  rowsEl.innerHTML = "";
+  if (!accounts || accounts.length === 0) {
+    addRow();
+  } else {
+    accounts.forEach(addRow);
+  }
+  updateEmpty();
 }
+
+function load() {
+  chrome.storage.sync.get(["accounts"], (res) => renderAccounts(res.accounts));
+}
+
+async function exportConfig() {
+  const data = {
+    app: "aws-account-tooltip",
+    version: 1,
+    accounts: collect(),
+  };
+  const json = JSON.stringify(data, null, 2);
+  const suggestedName = "aws-account-tooltip-config.json";
+  const done = () =>
+    showStatus("Exported ✓ (" + data.accounts.length + " accounts)");
+
+  // Let the user choose the destination when the File System Access API is
+  // available; otherwise fall back to a plain download.
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName,
+        types: [
+          { description: "JSON", accept: { "application/json": [".json"] } },
+        ],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(json);
+      await writable.close();
+      done();
+    } catch (e) {
+      if (e.name !== "AbortError") {
+        showStatus("Export failed: " + e.message, false);
+      }
+    }
+    return;
+  }
+
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = suggestedName;
+  a.click();
+  URL.revokeObjectURL(url);
+  done();
+}
+
+function importConfig(file) {
+  const reader = new FileReader();
+  reader.onerror = () => showStatus("Import failed: cannot read file", false);
+  reader.onload = () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(reader.result);
+    } catch (e) {
+      showStatus("Import failed: invalid JSON", false);
+      return;
+    }
+    const list = Array.isArray(parsed) ? parsed : parsed && parsed.accounts;
+    if (!Array.isArray(list)) {
+      showStatus("Import failed: no accounts found", false);
+      return;
+    }
+    const accounts = list
+      .map((a) => ({
+        id: String((a && a.id) || "").replace(/\D/g, ""),
+        name: String((a && a.name) || "").trim(),
+        // missing color -> default; explicit "" -> no highlight (tooltip only)
+        color: a && a.color != null ? a.color : DEFAULT_COLOR,
+      }))
+      .filter((a) => a.id.length === 12)
+      .map((a) => ({ ...a, name: a.name || a.id }));
+
+    renderAccounts(accounts);
+    chrome.storage.sync.set({ accounts }, () => {
+      if (chrome.runtime.lastError) {
+        showStatus("Error: " + chrome.runtime.lastError.message, false);
+      } else {
+        showStatus("Imported ✓ (" + accounts.length + " accounts)");
+      }
+    });
+  };
+  reader.readAsText(file);
+}
+
+const importFile = document.getElementById("importFile");
 
 document.getElementById("add").addEventListener("click", () => addRow());
 document.getElementById("save").addEventListener("click", save);
+document.getElementById("export").addEventListener("click", exportConfig);
+document.getElementById("import").addEventListener("click", () =>
+  importFile.click()
+);
+importFile.addEventListener("change", () => {
+  if (importFile.files && importFile.files[0]) {
+    importConfig(importFile.files[0]);
+  }
+  importFile.value = ""; // allow re-importing the same file
+});
 
 load();

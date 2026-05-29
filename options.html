@@ -162,6 +162,9 @@
         gap: 10px;
         align-items: center;
       }
+      .actions .spacer {
+        flex: 1;
+      }
       #status {
         color: #037f0c;
         font-size: 13px;
@@ -205,6 +208,10 @@
       <div class="actions">
         <button id="add" class="btn-secondary" type="button">+ Add account</button>
         <button id="save" class="btn-primary" type="button">Save</button>
+        <span class="spacer"></span>
+        <button id="export" class="btn-secondary" type="button">Export…</button>
+        <button id="import" class="btn-secondary" type="button">Import…</button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden />
         <span id="status">Saved ✓</span>
       </div>
     </div>

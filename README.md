@@ -28,6 +28,14 @@ color and shows the account name when you hover over it.
 Settings are stored with `chrome.storage.sync`, so they follow your Chrome
 profile across machines.
 
+### Backup & share
+
+- **Export…** downloads your account map as a JSON file
+  (`aws-account-tooltip-config.json`).
+- **Import…** loads accounts from such a file, replacing the current list and
+  saving immediately. Both a bare array and the exported
+  `{ "accounts": [...] }` format are accepted.
+
 ## How it works
 
 - `content.js` scans the page (and watches for SPA navigation changes via a
