@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "AWS Account Tooltip",
+  "version": "1.0.0",
+  "description": "Highlights configured AWS account IDs in the AWS Console and shows the account name as a tooltip.",
+  "permissions": ["storage"],
+  "options_page": "options.html",
+  "action": {
+    "default_title": "AWS Account Tooltip options"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://console.aws.amazon.com/*",
+        "https://*.console.aws.amazon.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

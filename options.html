@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>AWS Account Tooltip — Options</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: #f4f5f6;
+        color: #16191f;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 4px;
+      }
+      p.sub {
+        margin: 0 0 20px;
+        color: #5f6b7a;
+        font-size: 13px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #d5dbdb;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 760px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        text-align: left;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #5f6b7a;
+        padding: 0 8px 8px;
+      }
+      td {
+        padding: 4px 8px;
+        vertical-align: middle;
+      }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 7px 9px;
+        border: 1px solid #aab7b8;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #0972d3;
+        box-shadow: 0 0 0 2px rgba(9, 114, 211, 0.2);
+      }
+      input[type="color"] {
+        width: 44px;
+        height: 34px;
+        border: 1px solid #aab7b8;
+        border-radius: 5px;
+        background: #fff;
+        padding: 2px;
+        cursor: pointer;
+      }
+      .col-id {
+        width: 180px;
+      }
+      .col-color {
+        width: 60px;
+      }
+      .col-actions {
+        width: 40px;
+      }
+      button {
+        font-size: 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid transparent;
+      }
+      .btn-primary {
+        background: #0972d3;
+        color: #fff;
+        padding: 9px 18px;
+        font-weight: 600;
+      }
+      .btn-primary:hover {
+        background: #0763b8;
+      }
+      .btn-secondary {
+        background: #fff;
+        border: 1px solid #0972d3;
+        color: #0972d3;
+        padding: 9px 18px;
+      }
+      .btn-secondary:hover {
+        background: #f0f7ff;
+      }
+      .btn-remove {
+        background: transparent;
+        color: #d13212;
+        font-size: 18px;
+        line-height: 1;
+        padding: 4px 8px;
+        border: none;
+      }
+      .btn-remove:hover {
+        color: #a02000;
+      }
+      .actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      #status {
+        color: #037f0c;
+        font-size: 13px;
+        margin-left: 6px;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      #status.show {
+        opacity: 1;
+      }
+      .empty {
+        color: #5f6b7a;
+        font-size: 13px;
+        padding: 12px 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>AWS Account Tooltip</h1>
+    <p class="sub">
+      Map AWS account IDs to a name and a highlight color. Matching account IDs
+      on the AWS Console are highlighted with a hover tooltip.
+    </p>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-id">Account ID (12 digits)</th>
+            <th>Account name</th>
+            <th class="col-color">Color</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div id="empty" class="empty" hidden>
+        No accounts yet — click “Add account” to create one.
+      </div>
+
+      <div class="actions">
+        <button id="add" class="btn-secondary" type="button">+ Add account</button>
+        <button id="save" class="btn-primary" type="button">Save</button>
+        <span id="status">Saved ✓</span>
+      </div>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
