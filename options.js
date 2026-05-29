@@ -32,8 +32,29 @@ function makeColorPicker(selected) {
   const hidden = document.createElement("input");
   hidden.type = "hidden";
   hidden.className = "f-color";
-  hidden.value = selected || DEFAULT_COLOR;
+  // An empty value means "no highlight" (tooltip only). Only default to a
+  // palette color when nothing was previously stored.
+  hidden.value = selected == null ? DEFAULT_COLOR : selected;
   wrap.appendChild(hidden);
+
+  function deselectAll() {
+    wrap
+      .querySelectorAll(".swatch.selected")
+      .forEach((s) => s.classList.remove("selected"));
+  }
+
+  // "No color" swatch: no highlight, but the account ID still gets a tooltip.
+  const none = document.createElement("button");
+  none.type = "button";
+  none.className = "swatch none";
+  none.title = "No color (tooltip only)";
+  if (hidden.value === "") none.classList.add("selected");
+  none.addEventListener("click", () => {
+    hidden.value = "";
+    deselectAll();
+    none.classList.add("selected");
+  });
+  wrap.appendChild(none);
 
   PALETTE.forEach((hex) => {
     const sw = document.createElement("button");
@@ -46,9 +67,7 @@ function makeColorPicker(selected) {
     }
     sw.addEventListener("click", () => {
       hidden.value = hex;
-      wrap
-        .querySelectorAll(".swatch.selected")
-        .forEach((s) => s.classList.remove("selected"));
+      deselectAll();
       sw.classList.add("selected");
     });
     wrap.appendChild(sw);
@@ -56,9 +75,11 @@ function makeColorPicker(selected) {
 
   // Custom RGB swatch: opens the native color picker for anything not in the
   // palette. Shows a rainbow until a custom color is chosen.
+  const isNone = hidden.value === "";
   const inPalette = PALETTE.some(
     (h) => h.toLowerCase() === hidden.value.toLowerCase()
   );
+  const isCustom = !isNone && !inPalette;
 
   const custom = document.createElement("button");
   custom.type = "button";
@@ -68,9 +89,9 @@ function makeColorPicker(selected) {
   const picker = document.createElement("input");
   picker.type = "color";
   picker.className = "custom-picker";
-  picker.value = inPalette ? "#ff0000" : hidden.value;
+  picker.value = isCustom ? hidden.value : "#ff0000";
 
-  if (!inPalette) {
+  if (isCustom) {
     custom.classList.add("selected", "has-color");
     custom.style.backgroundColor = hidden.value;
   }
@@ -81,9 +102,7 @@ function makeColorPicker(selected) {
     hidden.value = picker.value;
     custom.style.backgroundColor = picker.value;
     custom.classList.add("has-color");
-    wrap
-      .querySelectorAll(".swatch.selected")
-      .forEach((s) => s.classList.remove("selected"));
+    deselectAll();
     custom.classList.add("selected");
   });
 

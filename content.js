@@ -36,7 +36,8 @@
     (accounts || []).forEach((a) => {
       const id = normalizeId(a.id || "");
       if (id.length === 12) {
-        accountMap[id] = { name: a.name || id, color: a.color || "#ffe58f" };
+        // An empty color means "tooltip only" (no highlight).
+        accountMap[id] = { name: a.name || id, color: a.color || "" };
       }
     });
   }
@@ -70,8 +71,13 @@
       const span = document.createElement("span");
       span.className = HIGHLIGHT_CLASS;
       span.textContent = raw;
-      span.style.backgroundColor = info.color;
-      span.style.color = textColorFor(info.color);
+      if (info.color) {
+        span.style.backgroundColor = info.color;
+        span.style.color = textColorFor(info.color);
+      } else {
+        // Tooltip only: no fill, just a subtle hover affordance.
+        span.classList.add(HIGHLIGHT_CLASS + "--plain");
+      }
       span.setAttribute("data-aws-acct-name", info.name);
       frag.appendChild(span);
 
